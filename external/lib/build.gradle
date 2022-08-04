@@ -1,6 +1,49 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
+}
+
+ext {
+    libraryGroupId = "com.lnsantos"
+    libraryArtifactId = "poc"
+    libraryVersion = "1.0.2"
+}
+
+def myLibraryMavenURL = project.findProperty("POC_URL")
+def myLibraryGithubUsername = project.findProperty("POC_USERNAME")
+def myLibraryGithubToken0Auth = project.findProperty("POC_TOKEN")
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri(myLibraryMavenURL)
+            credentials {
+                username = myLibraryGithubUsername
+                password = myLibraryGithubToken0Auth
+            }
+        }
+    }
+
+    publications {
+        exampleGithub(MavenPublication) {
+            groupId libraryGroupId
+            artifactId libraryArtifactId
+            version = libraryVersion
+            artifact("$buildDir/outputs/aar/${libraryArtifactId}.aar")
+        }
+    }
+}
+
+android {
+    libraryVariants.all { variant ->
+        variant.outputs.all { output ->
+            if (outputFile != null && outputFileName.endsWith('.aar')) {
+                outputFileName = "${libraryArtifactId}.aar"
+            }
+        }
+    }
 }
 
 android {
@@ -26,6 +69,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 

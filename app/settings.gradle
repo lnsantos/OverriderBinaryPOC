@@ -5,12 +5,30 @@ pluginManagement {
         mavenCentral()
     }
 }
+
+def properties = new Properties()
+def gradleDirectory = getGradle().gradleUserHomeDir.path
+
+file("$gradleDirectory/gradle.properties").withInputStream {properties.load(it) }
+
+def _uri = properties.getProperty("POC_URL")
+def _username = properties.getProperty("POC_USERNAME")
+def _tokensPassword = properties.getProperty("POC_TOKEN")
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri(_uri)
+            credentials {
+                username = _username
+                password = _tokensPassword
+            }
+        }
     }
 }
+
 rootProject.name = "App"
 include ':app'
